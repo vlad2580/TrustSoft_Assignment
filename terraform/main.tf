@@ -94,7 +94,7 @@ resource "aws_instance" "web_server" {
   count                  = 2
   ami                    = var.ami_id
   instance_type          = var.instance_type
-  subnet_id              = aws_subnet.publicSB.id
+  subnet_id              = element([aws_subnet.privateSB1.id, aws_subnet.privateSB2.id], count.index)
   vpc_security_group_ids = [aws_security_group.allow_tls.id]
   tags = {
     Name = "webServer${count.index + 1}_internship_vladislav"
