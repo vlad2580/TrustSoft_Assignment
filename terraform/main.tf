@@ -17,7 +17,7 @@ provider "aws" {
 }
 
 #---------------------------------------------------#
-# VPC & Subnet configuration                        #
+# VPC configuration                                 #
 #---------------------------------------------------#
 resource "aws_vpc" "main" {
   cidr_block = "10.0.0.0/16"
@@ -27,13 +27,106 @@ resource "aws_vpc" "main" {
 }
 
 
-resource "aws_subnet" "publicSB" {
+#---------------------------------------------------#
+# Internet Gateway configuration                    #
+#---------------------------------------------------#
+resource "aws_internet_gateway" "igw" {
+  vpc_id = aws_vpc.main.id
+  tags = {
+    Name = "igw_internship_vladislav"
+  }
+}
+
+#---------------------------------------------------#
+# NAT configuration                    #
+#---------------------------------------------------#
+resource "aws_eip" "nat_eip" {
+  vpc = true
+  tags = {
+    Name = "nat_eip_internship_vladislav"
+  }
+}
+
+resource "aws_nat_gateway" "ngw" {
+  allocation_id = aws_eip.nat_eip.id
+  subnet_id     = aws_subnet.publicSB1.id
+  depends_on    = [aws_eip.nat_eip]
+  tags = {
+    Name = "nat_gateway_internship_vladislav"
+  }
+}
+
+#-------------------------------#
+# Route Tables & Routes         #
+#-------------------------------#
+
+resource "aws_route_table" "public" {
+  vpc_id = aws_vpc.main.id
+  tags = {
+    Name = "rt_public_internship_vladislav"
+  }
+}
+
+resource "aws_route" "public_internet_access" {
+  route_table_id         = aws_route_table.public.id
+  destination_cidr_block = "0.0.0.0/0"
+  gateway_id             = aws_internet_gateway.igw.id
+  depends_on             = [aws_nat_gateway.ngw]
+}
+
+resource "aws_route_table_association" "public_assoc1" {
+  subnet_id      = aws_subnet.publicSB1.id
+  route_table_id = aws_route_table.public.id
+}
+
+resource "aws_route_table_association" "public_assoc2" {
+  subnet_id      = aws_subnet.publicSB2.id
+  route_table_id = aws_route_table.public.id
+}
+
+resource "aws_route_table" "private" {
+  vpc_id = aws_vpc.main.id
+  tags = {
+    Name = "rt_private_internship_vladislav"
+  }
+}
+# Add public subnet association
+resource "aws_route" "private_internet_access" {
+  route_table_id         = aws_route_table.private.id
+  destination_cidr_block = "0.0.0.0/0"
+  nat_gateway_id         = aws_nat_gateway.ngw.id
+}
+
+resource "aws_route_table_association" "private_1_assoc" {
+  subnet_id      = aws_subnet.privateSB1.id
+  route_table_id = aws_route_table.private.id
+}
+
+resource "aws_route_table_association" "private_2_assoc" {
+  subnet_id      = aws_subnet.privateSB2.id
+  route_table_id = aws_route_table.private.id
+}
+
+#---------------------------------------------------#
+# Subnet configuration                              #
+#---------------------------------------------------#
+resource "aws_subnet" "publicSB1" {
   vpc_id                  = aws_vpc.main.id
-  cidr_block              = "10.0.1.0/24"
+  cidr_block              = "10.0.5.0/24"
   map_public_ip_on_launch = true
   availability_zone       = "eu-west-1a"
   tags = {
-    Name = "publicSubnet_internship_vladislav"
+    Name = "publicSubnet1_internship_vladislav"
+  }
+}
+
+resource "aws_subnet" "publicSB2" {
+  vpc_id                  = aws_vpc.main.id
+  cidr_block              = "10.0.4.0/24"
+  map_public_ip_on_launch = true
+  availability_zone       = "eu-west-1b"
+  tags = {
+    Name = "publicSubnet2_internship_vladislav"
   }
 }
 
@@ -66,7 +159,7 @@ resource "aws_security_group" "allow_tls" {
   vpc_id      = aws_vpc.main.id
 
   ingress {
-    description = "TLS from VPC"
+    description = "SSH from specific IP"
     from_port   = 80
     to_port     = 80
     protocol    = "tcp"
@@ -91,12 +184,79 @@ resource "aws_security_group" "allow_tls" {
 #---------------------------------------------------#
 
 resource "aws_instance" "web_server" {
-  count                  = 2
-  ami                    = var.ami_id
-  instance_type          = var.instance_type
-  subnet_id              = element([aws_subnet.privateSB1.id, aws_subnet.privateSB2.id], count.index)
-  vpc_security_group_ids = [aws_security_group.allow_tls.id]
+  count                       = 2
+  ami                         = var.ami_id
+  instance_type               = var.instance_type
+  subnet_id                   = count.index % 2 == 0 ? aws_subnet.publicSB1.id : aws_subnet.publicSB2.id
+  vpc_security_group_ids      = [aws_security_group.allow_tls.id]
+  associate_public_ip_address = true
+  user_data                   = <<-EOT
+    #!/bin/bash
+    apt-get update -y
+    apt-get install -y apache2
+    systemctl start apache2
+    systemctl enable apache2
+    echo "Hello from server ${count.index + 1}!" > /var/www/html/index.html
+
+    EOT
   tags = {
     Name = "webServer${count.index + 1}_internship_vladislav"
   }
+}
+
+#-------------------------------#
+# Load Balancer                 #
+#-------------------------------#
+
+# Load Balancer (ALB)
+resource "aws_lb" "app_lb" {
+  name                       = "app-load-balancer"
+  internal                   = false
+  load_balancer_type         = "application"
+  security_groups            = [aws_security_group.allow_tls.id]
+  subnets                    = [aws_subnet.publicSB1.id, aws_subnet.publicSB2.id] # Связываем 2 публичные подсети
+  enable_deletion_protection = false
+
+  tags = {
+    Name = "alb_internship_vladislav"
+  }
+}
+
+# Target Group
+resource "aws_lb_target_group" "tg" {
+  name     = "target-group"
+  port     = 80
+  protocol = "HTTP"
+  vpc_id   = aws_vpc.main.id
+
+  health_check {
+    path                = "/"
+    interval            = 30
+    timeout             = 5
+    healthy_threshold   = 2
+    unhealthy_threshold = 2
+  }
+
+  tags = {
+    Name = "target_group_internship_vladislav"
+  }
+}
+
+# Listener
+resource "aws_lb_listener" "http" {
+  load_balancer_arn = aws_lb.app_lb.arn
+  port              = 80
+  protocol          = "HTTP"
+
+  default_action {
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.tg.arn
+  }
+}
+
+resource "aws_lb_target_group_attachment" "tg_attachment" {
+  count            = 2
+  target_group_arn = aws_lb_target_group.tg.arn
+  target_id        = aws_instance.web_server[count.index].id
+  port             = 80
 }
