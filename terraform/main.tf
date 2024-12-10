@@ -3,13 +3,25 @@
 #---------------------------------------------------#
 
 terraform {
+  backend "s3" {
+    bucket         = "s3-internship-vladislav"
+    key            = "state/terraform.tfstate"
+    region         = "eu-west-1"
+    encrypt        = true
+    dynamodb_table = "terraform-lock-table"
+  }
   required_providers {
     aws = {
       source  = "hashicorp/aws"
       version = "~> 4.0"
     }
   }
-
+}
+module "backend" {
+  source              = "./backend"
+  region              = var.region
+  s3_bucket_name      = "s3-internship-vladislav"
+  dynamodb_table_name = "terraform-lock-table"
 }
 
 provider "aws" {
@@ -38,7 +50,7 @@ resource "aws_internet_gateway" "igw" {
 }
 
 #---------------------------------------------------#
-# NAT configuration                    #
+# NAT configuration                                 #
 #---------------------------------------------------#
 resource "aws_eip" "nat_eip" {
   vpc = true
@@ -123,7 +135,7 @@ resource "aws_subnet" "publicSB1" {
 resource "aws_subnet" "publicSB2" {
   vpc_id                  = aws_vpc.main.id
   cidr_block              = "10.0.4.0/24"
-  map_public_ip_on_launch = true
+  map_public_ip_on_launch = true #delete after
   availability_zone       = "eu-west-1b"
   tags = {
     Name = "publicSubnet2_internship_vladislav"
@@ -199,64 +211,40 @@ resource "aws_instance" "web_server" {
     echo "Hello from server ${count.index + 1}!" > /var/www/html/index.html
 
     EOT
+  root_block_device {
+    volume_size = 20
+    volume_type = "gp3"
+  }
   tags = {
     Name = "webServer${count.index + 1}_internship_vladislav"
   }
 }
 
-#-------------------------------#
-# Load Balancer                 #
-#-------------------------------#
+#---------------------------------------------------#
+# EC2 instance                                      #
+#---------------------------------------------------#
+# resource "aws_iam_role" "ec2_role" {
+#   name = "iamrole_internship_yurikov"
 
-# Load Balancer (ALB)
-resource "aws_lb" "app_lb" {
-  name                       = "app-load-balancer"
-  internal                   = false
-  load_balancer_type         = "application"
-  security_groups            = [aws_security_group.allow_tls.id]
-  subnets                    = [aws_subnet.publicSB1.id, aws_subnet.publicSB2.id] # Связываем 2 публичные подсети
-  enable_deletion_protection = false
+#   assume_role_policy = jsonencode({
+#     Version = "2024-12-11",
+#     Statement = [
+#       {
+#         Effect = "Allow",
+#         Principal = {
+#           Service = "ec2.amazonaws.com"
+#         },
+#         Action = "sts:AssumeRole"
+#       }
+#     ]
+#   })
+# }
+# resource "aws_iam_role_policy_attachment" "ec2_policy" {
+#   role       = aws_iam_role.ec2_role.name
+#   policy_arn = "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
+# }
 
-  tags = {
-    Name = "alb_internship_vladislav"
-  }
-}
-
-# Target Group
-resource "aws_lb_target_group" "tg" {
-  name     = "target-group"
-  port     = 80
-  protocol = "HTTP"
-  vpc_id   = aws_vpc.main.id
-
-  health_check {
-    path                = "/"
-    interval            = 30
-    timeout             = 5
-    healthy_threshold   = 2
-    unhealthy_threshold = 2
-  }
-
-  tags = {
-    Name = "target_group_internship_vladislav"
-  }
-}
-
-# Listener
-resource "aws_lb_listener" "http" {
-  load_balancer_arn = aws_lb.app_lb.arn
-  port              = 80
-  protocol          = "HTTP"
-
-  default_action {
-    type             = "forward"
-    target_group_arn = aws_lb_target_group.tg.arn
-  }
-}
-
-resource "aws_lb_target_group_attachment" "tg_attachment" {
-  count            = 2
-  target_group_arn = aws_lb_target_group.tg.arn
-  target_id        = aws_instance.web_server[count.index].id
-  port             = 80
-}
+# resource "aws_iam_instance_profile" "ec2_instance_profile" {
+#   name = "ec2_internship_profile"
+#   role = aws_iam_role.ec2_role.name
+# }
