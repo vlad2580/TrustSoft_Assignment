@@ -1,7 +1,6 @@
 # TrustSodt_Assignment
 
 
-panbanan@Pans-MacBook-Air terraform % terraform-docs markdown table .          
 ## Requirements
 
 | Name | Version |
@@ -63,9 +62,3 @@ panbanan@Pans-MacBook-Air terraform % terraform-docs markdown table .
 | Name | Description |
 |------|-------------|
 | <a name="output_ec2_instance_ids"></a> [ec2\_instance\_ids](#output\_ec2\_instance\_ids) | output "kms\_key\_arn" { value = aws\_kms\_key.ec2\_ebs\_key.arn } |
-
-## Configure SSM Manager localy
-curl "https://s3.amazonaws.com/session-manager-downloads/plugin/latest/mac/sessionmanager-bundle.zip" -o "sessionmanager-bundle.zip"
-unzip sessionmanager-bundle.zip
-sudo ./sessionmanager-bundle/install -i /usr/local/sessionmanagerplugin -b /usr/local/bin/session-manager-plugin
-session-manager-plugin
