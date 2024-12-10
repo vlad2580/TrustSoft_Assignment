@@ -199,9 +199,9 @@ resource "aws_instance" "web_server" {
   count                       = 2
   ami                         = var.ami_id
   instance_type               = var.instance_type
-  subnet_id                   = count.index % 2 == 0 ? aws_subnet.publicSB1.id : aws_subnet.publicSB2.id
+  subnet_id                   = count.index % 2 == 0 ? aws_subnet.privateSB1.id : aws_subnet.privateSB2.id
   vpc_security_group_ids      = [aws_security_group.allow_tls.id]
-  associate_public_ip_address = true
+  associate_public_ip_address = false
   user_data                   = <<-EOT
     #!/bin/bash
     apt-get update -y
@@ -221,30 +221,30 @@ resource "aws_instance" "web_server" {
 }
 
 #---------------------------------------------------#
-# EC2 instance                                      #
+# IAM configuration                                 #
 #---------------------------------------------------#
-# resource "aws_iam_role" "ec2_role" {
-#   name = "iamrole_internship_yurikov"
+resource "aws_iam_role" "ec2_role" {
+  name = "iamrole_internship_yurikov"
 
-#   assume_role_policy = jsonencode({
-#     Version = "2024-12-11",
-#     Statement = [
-#       {
-#         Effect = "Allow",
-#         Principal = {
-#           Service = "ec2.amazonaws.com"
-#         },
-#         Action = "sts:AssumeRole"
-#       }
-#     ]
-#   })
-# }
-# resource "aws_iam_role_policy_attachment" "ec2_policy" {
-#   role       = aws_iam_role.ec2_role.name
-#   policy_arn = "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
-# }
+  assume_role_policy = jsonencode({
+    Version = "2024-12-11",
+    Statement = [
+      {
+        Effect = "Allow",
+        Principal = {
+          Service = "ec2.amazonaws.com"
+        },
+        Action = "sts:AssumeRole"
+      }
+    ]
+  })
+}
+resource "aws_iam_role_policy_attachment" "ec2_policy" {
+  role       = aws_iam_role.ec2_role.name
+  policy_arn = "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
+}
 
-# resource "aws_iam_instance_profile" "ec2_instance_profile" {
-#   name = "ec2_internship_profile"
-#   role = aws_iam_role.ec2_role.name
-# }
+resource "aws_iam_instance_profile" "ec2_instance_profile" {
+  name = "ec2_internship_profile"
+  role = aws_iam_role.ec2_role.name
+}
