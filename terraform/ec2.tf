@@ -21,24 +21,24 @@ resource "aws_instance" "web_server" {
 
     EOT
   root_block_device {
-    volume_size = 20
-    volume_type = "gp3"
+    volume_size = var.ebs_volume_size
+    volume_type = var.ebs_volume_type
     encrypted   = true
-    kms_key_id  = aws_kms_key.ec2_ebs_key.arn
   }
 
   lifecycle {
     create_before_destroy = true
   }
   tags = {
-    Name = "webServer${count.index + 1}_internship_vladislav"
+    description = "Creates EC2 instances for the web server with Apache pre-installed"
+    Name        = "webServer${count.index + 1}_internship_vladislav"
   }
 
 }
 
 #---------------------------------------------------#
 # IAM configuration                                 #
-# #---------------------------------------------------#
+#---------------------------------------------------#
 resource "aws_iam_role" "ec2_role" {
   name = "iamrole_internship_yurikov"
 
@@ -68,56 +68,56 @@ resource "aws_iam_instance_profile" "ec2_instance_profile" {
 #---------------------------------------------------#
 # KMS Key                                           #
 #---------------------------------------------------#
-resource "aws_kms_key" "ec2_ebs_key" {
-  description              = "KMS key for encrypting EC2 root and EBS volumes"
-  key_usage                = "ENCRYPT_DECRYPT"
-  customer_master_key_spec = "SYMMETRIC_DEFAULT"
-  enable_key_rotation      = true
+# resource "aws_kms_key" "ec2_ebs_key" {
+#   description              = "KMS key for encrypting EC2 root and EBS volumes"
+#   key_usage                = "ENCRYPT_DECRYPT"
+#   customer_master_key_spec = "SYMMETRIC_DEFAULT"
+#   enable_key_rotation      = true
 
-  policy = <<EOF
-  {
-    "Version": "2012-10-17",
-    "Statement": [
-      {
-        "Effect": "Allow",
-        "Principal": {
-          "AWS": "arn:aws:iam::${data.aws_caller_identity.current.account_id}:root"
-        },
-        "Action": [
-          "kms:Create*",
-          "kms:Describe*",
-          "kms:Enable*",
-          "kms:List*",
-          "kms:Put*",
-          "kms:Update*",
-          "kms:Revoke*",
-          "kms:Disable*",
-          "kms:Get*",
-          "kms:Delete*",
-          "kms:ScheduleKeyDeletion",
-          "kms:CancelKeyDeletion"
-        ],
-        "Resource": "*"
-      },
-      {
-        "Effect": "Allow",
-        "Principal": {
-          "AWS": "arn:aws:iam::${data.aws_caller_identity.current.account_id}:root"
-        },
-        "Action": [
-          "kms:GenerateDataKey*",
-          "kms:Encrypt",
-          "kms:Decrypt"
-        ],
-        "Resource": "*"
-      }
-    ]
-  }
-  EOF
+#   policy = <<EOF
+#   {
+#     "Version": "2012-10-17",
+#     "Statement": [
+#       {
+#         "Effect": "Allow",
+#         "Principal": {
+#           "AWS": "arn:aws:iam::${data.aws_caller_identity.current.account_id}:root"
+#         },
+#         "Action": [
+#           "kms:Create*",
+#           "kms:Describe*",
+#           "kms:Enable*",
+#           "kms:List*",
+#           "kms:Put*",
+#           "kms:Update*",
+#           "kms:Revoke*",
+#           "kms:Disable*",
+#           "kms:Get*",
+#           "kms:Delete*",
+#           "kms:ScheduleKeyDeletion",
+#           "kms:CancelKeyDeletion"
+#         ],
+#         "Resource": "*"
+#       },
+#       {
+#         "Effect": "Allow",
+#         "Principal": {
+#           "AWS": "arn:aws:iam::${data.aws_caller_identity.current.account_id}:root"
+#         },
+#         "Action": [
+#           "kms:GenerateDataKey*",
+#           "kms:Encrypt",
+#           "kms:Decrypt"
+#         ],
+#         "Resource": "*"
+#       }
+#     ]
+#   }
+#   EOF
 
-  tags = {
-    Name = "kms_internship_vladislav"
-  }
-}
+#   tags = {
+#     Name = "kms_internship_vladislav"
+#   }
+# }
 
-data "aws_caller_identity" "current" {}
+# data "aws_caller_identity" "current" {}

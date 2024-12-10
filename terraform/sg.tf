@@ -2,12 +2,12 @@
 # Security Group                                    #
 #---------------------------------------------------#
 resource "aws_security_group" "allow_tls" {
-  name        = "sg_internship_vladislav"
+  name        = var.security_group_name
   description = "Allow TLS inbound traffic"
   vpc_id      = aws_vpc.main.id
 
   ingress {
-    description = "HTTP"
+    description = "HTTP connection"
     from_port   = 80
     to_port     = 80
     protocol    = "tcp"

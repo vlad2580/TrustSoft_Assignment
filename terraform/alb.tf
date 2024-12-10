@@ -4,7 +4,7 @@
 
 # Load Balancer (ALB)
 resource "aws_lb" "app_lb" {
-  name                       = "app-load-balancer"
+  name                       = var.alb_name
   internal                   = false
   load_balancer_type         = "application"
   security_groups            = [aws_security_group.allow_tls.id]
@@ -18,7 +18,7 @@ resource "aws_lb" "app_lb" {
 
 # Target Group
 resource "aws_lb_target_group" "tg" {
-  name     = "target-group"
+  name     = var.target_group_name
   port     = 80
   protocol = "HTTP"
   vpc_id   = aws_vpc.main.id

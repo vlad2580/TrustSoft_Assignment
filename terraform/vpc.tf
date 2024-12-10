@@ -2,7 +2,7 @@
 # VPC configuration                                 #
 #---------------------------------------------------#
 resource "aws_vpc" "main" {
-  cidr_block = "10.0.0.0/16"
+  cidr_block = var.vpc_cidr_block
   tags = {
     Name = "vpc_internship_vladislav"
   }
@@ -70,7 +70,6 @@ resource "aws_route_table" "private" {
     Name = "rt_private_internship_vladislav"
   }
 }
-# Add public subnet association
 resource "aws_route" "private_internet_access" {
   route_table_id         = aws_route_table.private.id
   destination_cidr_block = "0.0.0.0/0"

@@ -45,6 +45,6 @@ resource "aws_dynamodb_table" "tf_lock" {
   }
 
   lifecycle {
-    prevent_destroy = true # Защита от случайного удаления
+    prevent_destroy = true
   }
 }
