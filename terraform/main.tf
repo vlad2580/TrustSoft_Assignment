@@ -82,6 +82,8 @@ resource "aws_instance" "web_server" {
   root_block_device {
     volume_size = 20
     volume_type = "gp3"
+    encrypted   = true
+    kms_key_id  = aws_kms_key.ec2_ebs_key.arn
   }
 
   lifecycle {
