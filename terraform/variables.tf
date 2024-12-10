@@ -12,3 +12,4 @@ variable "ami_id" {
   description = "AMI ID for the EC2 instance -  Ubuntu"
   default     = "ami-0e9085e60087ce171"
 }
+
