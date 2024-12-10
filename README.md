@@ -59,10 +59,12 @@
 | <a name="input_ebs_volume_type"></a> [ebs\_volume\_type](#input\_ebs\_volume\_type) | Type of the EBS volume | `string` | `"gp3"` | no |
 | <a name="input_instance_type"></a> [instance\_type](#input\_instance\_type) | EC2 instance type | `string` | `"t2.micro"` | no |
 | <a name="input_region"></a> [region](#input\_region) | AWS region for resources | `string` | `"eu-west-1"` | no |
+| <a name="input_security_group_name"></a> [security\_group\_name](#input\_security\_group\_name) | Name of the security group | `string` | `"sg_internship_vladislav"` | no |
 | <a name="input_target_group_name"></a> [target\_group\_name](#input\_target\_group\_name) | Name of the Target Group | `string` | `"target-group"` | no |
+| <a name="input_vpc_cidr_block"></a> [vpc\_cidr\_block](#input\_vpc\_cidr\_block) | CIDR block for the VPC | `string` | `"10.0.0.0/16"` | no |
 
 ## Outputs
 
 | Name | Description |
 |------|-------------|
-| <a name="output_ec2_instance_ids"></a> [ec2\_instance\_ids](#output\_ec2\_instance\_ids) | output "kms\_key\_arn" { value = aws\_kms\_key.ec2\_ebs\_key.arn }
+| <a name="output_ec2_instance_ids"></a> [ec2\_instance\_ids](#output\_ec2\_instance\_ids) | output "kms\_key\_arn" { value = aws\_kms\_key.ec2\_ebs\_key.arn } |
