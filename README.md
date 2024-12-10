@@ -1,10 +1,78 @@
 # TrustSodt_Assignment
-# Project Description
+# **Project Description**
 
-This project uses Terraform to deploy a comprehensive AWS infrastructure. The deployed resources include VPC, subnets, EC2 instances, Application Load Balancer (ALB), Security Groups, IAM roles, S3 backend, NAT Gateway, Route Tables, and Route Associations.
+This project uses **Terraform** to deploy a comprehensive **AWS infrastructure**. The deployed resources include **VPC**, **subnets**, **EC2 instances**, **Application Load Balancer (ALB)**, **Security Groups**, **IAM roles**, **S3 backend**, **NAT Gateway**, **Route Tables**, and **Route Associations**.
 
-The primary goal of this project is to demonstrate Infrastructure as Code (IaC) principles and provide a production-ready environment for web applications running on EC2 instances behind an ALB.
+The primary goal of this project is to demonstrate **Infrastructure as Code (IaC)** principles and provide a production-ready environment for web applications running on **EC2 instances** behind an **ALB**.
 
+---
+
+## **Project Resources**
+
+This project deploys the following AWS infrastructure:
+
+### **Network**
+- **VPC** with a custom CIDR block (`10.0.0.0/16` by default)
+- **2 public and 2 private subnets**
+- **Internet Gateway**
+- **NAT Gateway** for outbound internet access for private instances
+- **Route Tables** with public and private routing configurations
+- **Route Table Associations** to link subnets to route tables
+
+### **Compute**
+- **2 EC2 instances** in **separate private subnets** (1 in each AZ) running **Apache2**
+- Each EC2 instance is placed in its own private subnet to ensure **high availability** and **security**
+  - **EC2 instance 1** is deployed in **private subnet 1**  
+  - **EC2 instance 2** is deployed in **private subnet 2**  
+- **IAM Instance Profile** to allow management of EC2 instances via **AWS SSM**
+
+### **Load Balancing**
+- **Application Load Balancer (ALB)** to distribute incoming traffic to EC2 instances
+- **Target Group** for backend instances with **health check configurations**
+
+### **Security**
+- **Security Group** to control **inbound and outbound traffic** for EC2 and ALB
+  - **Inbound**: Allows HTTP (port 80) traffic to the ALB
+  - **Outbound**: Full outbound access for EC2 instances to enable software updates and package downloads
+
+### **Backend**
+- **S3 Bucket** to store **Terraform state file**
+- **DynamoDB Table** for **state lock management** to ensure only one user or system can modify the infrastructure at a time
+
+## **Usage**
+
+To deploy this infrastructure, follow the steps below.
+
+### **1️⃣ Prerequisites**
+Make sure you have the following installed and configured on your system:
+- **AWS CLI** (v2.0 or higher)
+- **Terraform** (v1.5 or higher)
+- Access to an AWS account with sufficient permissions to create resources:
+  - **EC2**
+  - **IAM**
+  - **S3**
+  - **VPC**
+  - **DynamoDB**
+
+Run the following command to configure AWS CLI credentials:
+```bash
+aws configure
+```
+### **2️⃣ Clone the repository**
+
+Clone this repository to your local machine:
+```bash
+git clone https://github.com/your-repo/terraform-aws-infrastructure.git
+cd terraform-aws-infrastructure
+```
+
+### **3️⃣ Initialize Terraform**
+
+Run the following command to initialize **Terraform**. It will download all necessary providers and set up the S3 backend.
+```bash
+сd backend
+terraform init
+```
 ## Requirements
 
 | Name | Version |
