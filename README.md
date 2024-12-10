@@ -1,5 +1,9 @@
 # TrustSodt_Assignment
+# Project Description
 
+This project uses Terraform to deploy a comprehensive AWS infrastructure. The deployed resources include VPC, subnets, EC2 instances, Application Load Balancer (ALB), Security Groups, IAM roles, S3 backend, NAT Gateway, Route Tables, and Route Associations.
+
+The primary goal of this project is to demonstrate Infrastructure as Code (IaC) principles and provide a production-ready environment for web applications running on EC2 instances behind an ALB.
 
 ## Requirements
 
