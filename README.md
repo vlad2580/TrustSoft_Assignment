@@ -103,6 +103,30 @@ terraform plan
                 or
 		“Hello from server 2”
 ```
+
+# Troubleshooting
+
+If you encounter issues during or after deployment, follow these steps to troubleshoot common problems:
+
+**1️⃣ Checking Health Checks in the AWS Management Console**
+
+The Application Load Balancer (ALB) uses health checks to ensure that EC2 instances are available to serve traffic. If the ALB is not routing traffic correctly, verify the health status of the target instances.
+
+In AWS console go to the
+/
+ **EC2 Dashboard** -> **Target Groups** -> **Health Status**
+/
+
+Verify that all attached instances show the status as healthy.
+
+**2️⃣ Connecting to EC2 Instances Using SSM**
+
+If you need to debug an issue directly on the EC2 instances, use **AWS Systems Manager Session Manager (SSM)** to connect.
+
+```bash
+aws ssm start-session --target <INSTANCE_ID> --region <YOUR_REGION>
+```
+
 ## **Project Resources**
 
 This project deploys the following AWS infrastructure:
