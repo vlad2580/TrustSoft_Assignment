@@ -75,7 +75,34 @@ terraform plan
 ```bash
 terraform apply
 ```
+### **6️⃣ Verify the Deployment**
 
+- At the end of the terraform apply command, you should see the output with the DNS name of the Application Load Balancer (ALB).
+
+Example:
+```bash
+Outputs:
+
+alb_dns_name = "app-load-balancer-XXXXXXXXXX.<your_region>.elb.amazonaws.com"
+ec2_instance_ids = [
+    "i-0XXXXXXXXXX",
+    "i-0XXXXXXXXXX"
+]
+```
+- Copy the alb_dns_name from the output and paste it into your browser:
+```bash
+http://app-load-balancer-XXXXXXXXXX.<your_region>.elb.amazonaws.com
+```
+- Plan the infrastructure deployment to see what resources will be created
+```bash
+terraform plan
+```
+- You should see a response from one of the EC2 instances:
+```bash
+		“Hello from server 1”
+                or
+		“Hello from server 2”
+```
 ## **Project Resources**
 
 This project deploys the following AWS infrastructure:
