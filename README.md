@@ -1,4 +1,7 @@
 # TrustSodt_Assignment
+
+![Logo](https://awsmp-logos.s3.amazonaws.com/23803f90-96da-453d-a839-dc2105cadb71/bc8bdf99db9e35f25956c154b6b9dac3.png)
+
 # **Project Description**
 
 This project uses **Terraform** to deploy a comprehensive **AWS infrastructure**. The deployed resources include **VPC**, **subnets**, **EC2 instances**, **Application Load Balancer (ALB)**, **Security Groups**, **IAM roles**, **S3 backend**, **NAT Gateway**, **Route Tables**, and **Route Associations**.
