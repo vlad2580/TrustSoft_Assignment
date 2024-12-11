@@ -52,6 +52,29 @@ terraform fmt
 terraform validate
 terraform apply
 ```
+### **5️⃣ Deploy the Infrastructure**
+
+Once the Terraform backend is initialized, and the S3 bucket and DynamoDB table are set up, you can proceed to deploy the main infrastructure.
+
+**Steps to Deploy:**
+- Navigate to the root Terraform directory:
+```bash
+cd ../
+```
+- Initialize,format and validate Terraform in the main directory
+```bash
+terraform init
+terraform validate
+terraform fmt
+```
+- Plan the infrastructure deployment to see what resources will be created
+```bash
+terraform plan
+```
+- Apply the infrastructure deployment:
+```bash
+terraform apply
+```
 
 ## **Project Resources**
 
