@@ -1,4 +1,4 @@
-# TrustSodt_Assignment
+# TrustSoft_Assignment
 
 ![Logo](https://awsmp-logos.s3.amazonaws.com/23803f90-96da-453d-a839-dc2105cadb71/bc8bdf99db9e35f25956c154b6b9dac3.png)
 
@@ -9,6 +9,49 @@ This project uses **Terraform** to deploy a comprehensive **AWS infrastructure**
 The primary goal of this project is to demonstrate **Infrastructure as Code (IaC)** principles and provide a production-ready environment for web applications running on **EC2 instances** behind an **ALB**.
 
 ---
+## **Usage**
+
+To deploy this infrastructure, follow the steps below.
+
+### **1️⃣ Prerequisites**
+Make sure you have the following installed and configured on your system:
+- **AWS CLI** (v2.0 or higher)
+- **Terraform** (v1.5 or higher)
+- **SSM Agent**(installed and running on all EC2 instances; pre-installed on most Amazon Linux and Ubuntu AMIs)
+- Access to an AWS account with sufficient permissions to create resources:
+  - **EC2**
+  - **IAM**
+  - **S3**
+  - **VPC**
+  - **DynamoDB**
+
+### **2️⃣ Clone the repository**
+
+Clone this repository to your local machine:
+```bash
+git clone https://github.com/your-repo/terraform-aws-infrastructure.git
+cd terraform-aws-infrastructure
+```
+### **3️⃣ AWS CLI CONFIGIRATION**
+
+Run the following commands in your terminal to set the AWS environment variables. Learn more 
+```bash
+export AWS_ACCESS_KEY_ID="YOUR_ACCESS_KEY_ID"
+export AWS_SECRET_ACCESS_KEY="YOUR_SECRET_ACCESS_KEY"
+export AWS_SESSION_TOKEN="YOUR_SESSION_TOKEN"
+```
+
+### **4️⃣ Initialize and deploy Terraform backend**
+
+Run the following command to initialize **Terraform**. It will download all necessary providers and set up the S3 backend.After that id will deploy **S3 bucket** for storing state file and **DynamoDb table** for lock
+```bash
+сd backend
+terraform init
+terraform plan
+terraform fmt
+terraform validate
+terraform apply
+```
 
 ## **Project Resources**
 
@@ -42,48 +85,6 @@ This project deploys the following AWS infrastructure:
 - **S3 Bucket** to store **Terraform state file**
 - **DynamoDB Table** for **state lock management** to ensure only one user or system can modify the infrastructure at a time
 
-## **Usage**
-
-To deploy this infrastructure, follow the steps below.
-
-### **1️⃣ Prerequisites**
-Make sure you have the following installed and configured on your system:
-- **AWS CLI** (v2.0 or higher)
-- **Terraform** (v1.5 or higher)
-- Access to an AWS account with sufficient permissions to create resources:
-  - **EC2**
-  - **IAM**
-  - **S3**
-  - **VPC**
-  - **DynamoDB**
-
-### **2️⃣ Clone the repository**
-
-Clone this repository to your local machine:
-```bash
-git clone https://github.com/your-repo/terraform-aws-infrastructure.git
-cd terraform-aws-infrastructure
-```
-### **3️⃣ AWS CLI CONFIGIRATION**
-
-Run the following commands in your terminal to set the AWS environment variables. Learn more 
-```bash
-export AWS_ACCESS_KEY_ID="YOUR_ACCESS_KEY_ID"
-export AWS_SECRET_ACCESS_KEY="YOUR_SECRET_ACCESS_KEY"
-export AWS_SESSION_TOKEN="YOUR_SESSION_TOKEN"
-```
-
-### **4 Initialize and deploy backend**
-
-Run the following command to initialize **Terraform**. It will download all necessary providers and set up the S3 backend.After that id will deploy **S3 bucket** for storing state file and **DynamoDb table** for lock
-```bash
-сd backend
-terraform init
-terraform plan
-terraform fmt
-terraform validate
-terraform apply
-```
 ## Requirements
 
 | Name | Version |
