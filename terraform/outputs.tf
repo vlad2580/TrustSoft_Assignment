@@ -2,6 +2,8 @@
 #   value = aws_kms_key.ec2_ebs_key.arn
 # }
 output "ec2_instance_ids" {
+  description = "IDs of created EC2 instances"
+
   value = aws_instance.web_server[*].id
 }
 
