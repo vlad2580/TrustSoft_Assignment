@@ -225,4 +225,5 @@ This project deploys the following AWS infrastructure:
 
 | Name | Description |
 |------|-------------|
-| <a name="output_ec2_instance_ids"></a> [ec2\_instance\_ids](#output\_ec2\_instance\_ids) | output "kms\_key\_arn" { value = aws\_kms\_key.ec2\_ebs\_key.arn } |
+| <a name="output_alb_dns_name"></a> [alb\_dns\_name](#output\_alb\_dns\_name) | DNS Name of the Application Load Balancer |
+| <a name="output_ec2_instance_ids"></a> [ec2\_instance\_ids](#output\_ec2\_instance\_ids) | IDs of created EC2 instances |
