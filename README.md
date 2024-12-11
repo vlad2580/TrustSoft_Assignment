@@ -57,10 +57,6 @@ Make sure you have the following installed and configured on your system:
   - **VPC**
   - **DynamoDB**
 
-Run the following command to configure AWS CLI credentials:
-```bash
-aws configure
-```
 ### **2️⃣ Clone the repository**
 
 Clone this repository to your local machine:
@@ -68,13 +64,25 @@ Clone this repository to your local machine:
 git clone https://github.com/your-repo/terraform-aws-infrastructure.git
 cd terraform-aws-infrastructure
 ```
+### **3️⃣ AWS CLI CONFIGIRATION**
 
-### **3️⃣ Initialize Terraform**
+Run the following commands in your terminal to set the AWS environment variables. Learn more 
+```bash
+export AWS_ACCESS_KEY_ID="YOUR_ACCESS_KEY_ID"
+export AWS_SECRET_ACCESS_KEY="YOUR_SECRET_ACCESS_KEY"
+export AWS_SESSION_TOKEN="YOUR_SESSION_TOKEN"
+```
 
-Run the following command to initialize **Terraform**. It will download all necessary providers and set up the S3 backend.
+### **4 Initialize and deploy backend**
+
+Run the following command to initialize **Terraform**. It will download all necessary providers and set up the S3 backend.After that id will deploy **S3 bucket** for storing state file and **DynamoDb table** for lock
 ```bash
 сd backend
 terraform init
+terraform plan
+terraform fmt
+terraform validate
+terraform apply
 ```
 ## Requirements
 
