@@ -8,6 +8,10 @@ This project uses **Terraform** to deploy a comprehensive **AWS infrastructure**
 
 The primary goal of this project is to demonstrate **Infrastructure as Code (IaC)** principles and provide a production-ready environment for web applications running on **EC2 instances** behind an **ALB**.
 
+### This architecture diagram represents the infrastructure setup
+![TrustSoft_Diagram](https://github.com/user-attachments/assets/6d1a96b2-fb16-4241-86b9-9f610703d0db)
+
+
 ---
 ## **Usage**
 
