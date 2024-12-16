@@ -49,3 +49,8 @@ variable "vpc_cidr_block" {
   type        = string
   default     = "10.0.0.0/16"
 }
+
+variable "sns_email" {
+  description = "Email address to receive CloudWatch Alarm notifications"
+  type        = string
+}

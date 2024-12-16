@@ -11,15 +11,8 @@ resource "aws_instance" "web_server" {
   iam_instance_profile        = aws_iam_instance_profile.ec2_instance_profile.name
   associate_public_ip_address = false
   user_data                   = <<-EOT
-    #!/bin/bash
-    apt-get update -y
-    apt-get install -y apache2
-    systemctl start apache2
-    systemctl enable apache2
-    echo "Hello from server ${count.index + 1}!" > /var/www/html/index.html
-    sudo systemctl status amazon-ssm-agent
-
-    EOT
+    ${file("${path.module}/data/ec2_setup.sh")}
+  EOT
   root_block_device {
     volume_size = var.ebs_volume_size
     volume_type = var.ebs_volume_type
@@ -60,64 +53,56 @@ resource "aws_iam_role_policy_attachment" "ec2_policy" {
   policy_arn = "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
 }
 
+resource "aws_iam_role_policy_attachment" "ec2_cloudwatch_policy" {
+  role       = aws_iam_role.ec2_role.name
+  policy_arn = "arn:aws:iam::aws:policy/CloudWatchAgentServerPolicy"
+}
+
 resource "aws_iam_instance_profile" "ec2_instance_profile" {
   name = "ec2_internship_profile"
   role = aws_iam_role.ec2_role.name
 }
 
 #---------------------------------------------------#
-# KMS Key                                           #
+# SNS Topic for CloudWatch Alarm                    #
 #---------------------------------------------------#
-# resource "aws_kms_key" "ec2_ebs_key" {
-#   description              = "KMS key for encrypting EC2 root and EBS volumes"
-#   key_usage                = "ENCRYPT_DECRYPT"
-#   customer_master_key_spec = "SYMMETRIC_DEFAULT"
-#   enable_key_rotation      = true
 
-#   policy = <<EOF
-#   {
-#     "Version": "2012-10-17",
-#     "Statement": [
-#       {
-#         "Effect": "Allow",
-#         "Principal": {
-#           "AWS": "arn:aws:iam::${data.aws_caller_identity.current.account_id}:root"
-#         },
-#         "Action": [
-#           "kms:Create*",
-#           "kms:Describe*",
-#           "kms:Enable*",
-#           "kms:List*",
-#           "kms:Put*",
-#           "kms:Update*",
-#           "kms:Revoke*",
-#           "kms:Disable*",
-#           "kms:Get*",
-#           "kms:Delete*",
-#           "kms:ScheduleKeyDeletion",
-#           "kms:CancelKeyDeletion"
-#         ],
-#         "Resource": "*"
-#       },
-#       {
-#         "Effect": "Allow",
-#         "Principal": {
-#           "AWS": "arn:aws:iam::${data.aws_caller_identity.current.account_id}:root"
-#         },
-#         "Action": [
-#           "kms:GenerateDataKey*",
-#           "kms:Encrypt",
-#           "kms:Decrypt"
-#         ],
-#         "Resource": "*"
-#       }
-#     ]
-#   }
-#   EOF
+resource "aws_sns_topic" "cloudwatch_alarm_topic" {
+  name = "cloudwatch-ec2-alarms-topic"
+}
 
-#   tags = {
-#     Name = "kms_internship_vladislav"
-#   }
-# }
+resource "aws_sns_topic_subscription" "email_subscription" {
+  topic_arn = aws_sns_topic.cloudwatch_alarm_topic.arn
+  protocol  = "email"
+  endpoint  = var.sns_email
+}
 
-# data "aws_caller_identity" "current" {}
+
+
+#---------------------------------------------------#
+# CloudWatch Alarm                                  #
+#---------------------------------------------------#
+
+resource "aws_cloudwatch_metric_alarm" "ec2_cpu" {
+  count                     = length(aws_instance.web_server)
+  alarm_name                = "cpu-utilization-${element(aws_instance.web_server[*].id, count.index)}"
+  alarm_description         = "Monitors CPU utilization for EC2 instance ${element(aws_instance.web_server[*].id, count.index)}"
+  namespace                 = "AWS/EC2"
+  metric_name               = "CPUUtilization_internship_Yurikov"
+  comparison_operator       = "GreaterThanOrEqualToThreshold"
+  threshold                 = 80
+  evaluation_periods        = 2
+  period                    = 60
+  statistic                 = "Average"
+  treat_missing_data        = "notBreaching"
+  insufficient_data_actions = []
+  alarm_actions             = [aws_sns_topic.cloudwatch_alarm_topic.arn]
+  ok_actions                = [aws_sns_topic.cloudwatch_alarm_topic.arn]
+
+  dimensions = {
+    InstanceId = element(aws_instance.web_server[*].id, count.index)
+  }
+  tags = {
+    Name = "cloudwtach_internship_yurikov"
+  }
+}

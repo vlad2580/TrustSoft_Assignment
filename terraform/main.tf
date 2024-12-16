@@ -22,6 +22,7 @@ module "backend" {
   region              = var.region
   s3_bucket_name      = "s3-internship-vladislav"
   dynamodb_table_name = "terraform-lock-table"
+  sns_email           = var.sns_email
 }
 
 provider "aws" {
