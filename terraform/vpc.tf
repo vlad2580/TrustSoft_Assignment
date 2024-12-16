@@ -3,6 +3,9 @@
 #---------------------------------------------------#
 resource "aws_vpc" "main" {
   cidr_block = var.vpc_cidr_block
+
+  enable_dns_support   = true
+  enable_dns_hostnames = true
   tags = {
     Name = "vpc_internship_vladislav"
   }
@@ -127,4 +130,81 @@ resource "aws_subnet" "privateSB2" {
   tags = {
     Name = "privateSubnet2_internship_vladislav"
   }
+}
+
+#---------------------------------------------------#
+# VPC Flow Logs                                     #
+#---------------------------------------------------#
+
+# Получение текущего идентификатора аккаунта
+data "aws_caller_identity" "current" {}
+
+# CloudWatch Log Group with 3-day retention (приближенное значение к 2 дням)
+resource "aws_cloudwatch_log_group" "vpc_flow_logs" {
+  name              = "/aws/vpc/flow-logs"
+  retention_in_days = 3
+}
+
+# IAM Role for VPC Flow Logs
+resource "aws_iam_role" "vpc_flow_logs_role" {
+  name = "vpc-flow-logs-role"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [
+      {
+        Effect = "Allow",
+        Principal = {
+          Service = "vpc-flow-logs.amazonaws.com"
+        },
+        Action = "sts:AssumeRole",
+        Condition = {
+          StringEquals = {
+            "aws:SourceAccount" = data.aws_caller_identity.current.account_id
+          },
+          ArnLike = {
+            "aws:SourceArn" = "arn:aws:ec2:${var.region}:${data.aws_caller_identity.current.account_id}:vpc-flow-log/*"
+          }
+        }
+      }
+    ]
+  })
+}
+
+# Attach necessary permissions for Flow Logs to send logs to CloudWatch
+resource "aws_iam_policy" "vpc_flow_logs_policy" {
+  name        = "VPCFlowLogsPolicy"
+  description = "Policy for VPC Flow Logs to send data to CloudWatch Logs"
+
+  policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [
+      {
+        Effect = "Allow",
+        Action = [
+          "logs:CreateLogGroup",
+          "logs:CreateLogStream",
+          "logs:PutLogEvents",
+          "logs:DescribeLogGroups",
+          "logs:DescribeLogStreams"
+        ],
+        Resource = "*"
+      }
+    ]
+  })
+}
+
+# Attach policy to role
+resource "aws_iam_role_policy_attachment" "vpc_flow_logs_policy_attachment" {
+  role       = aws_iam_role.vpc_flow_logs_role.name
+  policy_arn = aws_iam_policy.vpc_flow_logs_policy.arn
+}
+
+# Create VPC Flow Logs
+resource "aws_flow_log" "vpc_flow_logs" {
+  log_destination      = aws_cloudwatch_log_group.vpc_flow_logs.arn
+  log_destination_type = "cloud-watch-logs"
+  traffic_type         = "ALL"
+  vpc_id               = aws_vpc.main.id
+  iam_role_arn         = aws_iam_role.vpc_flow_logs_role.arn
 }

@@ -54,3 +54,11 @@ variable "sns_email" {
   description = "Email address to receive CloudWatch Alarm notifications"
   type        = string
 }
+variable "default_tags" {
+  description = "Default tags to apply to all resources"
+  type        = map(string)
+  default = {
+    Environment = "internship"
+    Project     = "vpc"
+  }
+}
