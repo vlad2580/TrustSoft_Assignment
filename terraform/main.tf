@@ -1,5 +1,5 @@
 #---------------------------------------------------#
-# Basic Configuration                               #
+# Terraform Backend Configuration                   #
 #---------------------------------------------------#
 
 terraform {
@@ -17,6 +17,19 @@ terraform {
     }
   }
 }
+
+#---------------------------------------------------#
+# AWS Provider Configuration                        #
+#---------------------------------------------------#
+
+provider "aws" {
+  region = var.region
+}
+
+#---------------------------------------------------#
+# Backend Module                                    #
+#---------------------------------------------------#
+
 module "backend" {
   source              = "./backend"
   region              = var.region
@@ -25,7 +38,5 @@ module "backend" {
   sns_email           = var.sns_email
 }
 
-provider "aws" {
-  region = var.region
-}
+
 

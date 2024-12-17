@@ -29,6 +29,36 @@ resource "aws_instance" "web_server" {
 
 }
 
+resource "aws_instance" "postgresql_server" {
+  count                       = 1
+  ami                         = var.ami_id
+  instance_type               = var.instance_type
+  subnet_id                   = aws_subnet.privateSB1.id
+  vpc_security_group_ids      = [aws_security_group.allow_tls.id]
+  iam_instance_profile        = aws_iam_instance_profile.ec2_instance_profile.name
+  associate_public_ip_address = false
+  user_data                   = <<-EOT
+    ${file("${path.module}/data/ec2_setup.sh")}
+  EOT
+  root_block_device {
+    volume_size = var.ebs_volume_size
+    volume_type = var.ebs_volume_type
+    encrypted   = true
+  }
+
+  lifecycle {
+    create_before_destroy = true
+  }
+  tags = {
+    description = "Creates EC2 instances for the web server with Apache pre-installed"
+    Name        = "postgresql_internship_vladislav"
+  }
+
+}
+
+
+
+
 #---------------------------------------------------#
 # IAM configuration                                 #
 #---------------------------------------------------#
