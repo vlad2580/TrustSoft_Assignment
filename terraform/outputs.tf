@@ -27,3 +27,8 @@ output "private_subnet_ids" {
   description = "List of private subnet IDs"
   value       = [aws_subnet.privateSB1.id, aws_subnet.privateSB2.id]
 }
+
+output "ssm_association_id" {
+  description = "ID созданной SSM Association"
+  value       = aws_ssm_association.apply_cloudwatch_agent_config.id
+}
