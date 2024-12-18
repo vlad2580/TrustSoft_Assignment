@@ -10,3 +10,4 @@
 # keys
 *.pem 
 .env
+terraform.tfvars

@@ -136,10 +136,8 @@ resource "aws_subnet" "privateSB2" {
 # VPC Flow Logs                                     #
 #---------------------------------------------------#
 
-# Получение текущего идентификатора аккаунта
 data "aws_caller_identity" "current" {}
 
-# CloudWatch Log Group with 3-day retention (приближенное значение к 2 дням)
 resource "aws_cloudwatch_log_group" "vpc_flow_logs" {
   name              = "/aws/vpc/flow-logs"
   retention_in_days = 3
