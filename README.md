@@ -1,6 +1,5 @@
 # TrustSoft_Assignment
 
-![Logo](https://awsmp-logos.s3.amazonaws.com/23803f90-96da-453d-a839-dc2105cadb71/bc8bdf99db9e35f25956c154b6b9dac3.png)
 
 # **Project Description**
 
